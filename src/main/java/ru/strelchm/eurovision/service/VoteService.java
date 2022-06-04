@@ -1,10 +1,13 @@
 package ru.strelchm.eurovision.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.strelchm.eurovision.api.dto.ArtistsFileDto;
 import ru.strelchm.eurovision.api.dto.VoteIntervalStatDto;
 import ru.strelchm.eurovision.api.dto.VoteTotalStat;
 import ru.strelchm.eurovision.api.exception.BadRequestException;
@@ -15,6 +18,7 @@ import ru.strelchm.eurovision.domain.BaseEntity;
 import ru.strelchm.eurovision.domain.Vote;
 
 import javax.persistence.criteria.Predicate;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,10 +39,10 @@ public class VoteService implements InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
-//    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-//    mapper.findAndRegisterModules();
-//    ArtistsFileDto artistNamesDto = mapper.readValue(new File("src/main/resources/artists.yml"), ArtistsFileDto.class);
-//    artistRepository.saveAll(artistNamesDto.getArtistNames().stream().map(Artist::new).collect(Collectors.toList()));
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    mapper.findAndRegisterModules();
+    ArtistsFileDto artistNamesDto = mapper.readValue(new File("src/main/resources/artists.yml"), ArtistsFileDto.class);
+    artistRepository.saveAll(artistNamesDto.getArtistNames().stream().map(Artist::new).collect(Collectors.toList()));
   }
 
   @Transactional(readOnly = true)

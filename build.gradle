@@ -33,6 +33,8 @@ dependencies {
 
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
 
+	implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:6.0.1'
+
 	implementation 'org.mapstruct:mapstruct:1.5.0.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.0.Final'
 
