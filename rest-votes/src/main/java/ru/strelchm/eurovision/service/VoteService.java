@@ -41,7 +41,7 @@ public class VoteService implements InitializingBean {
   public void afterPropertiesSet() throws Exception {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     mapper.findAndRegisterModules();
-    ArtistsFileDto artistNamesDto = mapper.readValue(new File("src/main/resources/artists.yml"), ArtistsFileDto.class);
+    ArtistsFileDto artistNamesDto = mapper.readValue(new File("rest-votes/src/main/resources/artists.yml"), ArtistsFileDto.class);
     artistRepository.saveAll(artistNamesDto.getArtistNames().stream().map(Artist::new).collect(Collectors.toList()));
   }
 
