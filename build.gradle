@@ -11,7 +11,6 @@ configurations {
     }
 }
 
-
 subprojects {
 	apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
@@ -46,6 +45,18 @@ project(':rest-votes') {
         annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.0.Final'
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+}
+
+project(':stat-votes') {
+    dependencies {
+        implementation 'org.springframework:spring-context:5.3.17'
+        implementation 'org.springframework:spring-web:5.3.20'
+
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
     }
 }
 
