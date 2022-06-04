@@ -25,7 +25,7 @@ import java.util.Date;
 @RequestMapping("/votes")
 @Validated
 @Tag(name = "/votes", description = "Votes operations")
-public class EurovisionController {
+public class VoteController {
 
   public static final String NULL_CREATE_OBJECT_REQUEST_EXCEPTION = "Instance that must be created not found in request body";
   public static final String SUCCESS_MESSAGE_FIELD = "Success";
@@ -35,7 +35,7 @@ public class EurovisionController {
   private final VoteMapper voteMapper;
 
   @Autowired
-  public EurovisionController(VoteService voteService, VoteMapper voteMapper) {
+  public VoteController(VoteService voteService, VoteMapper voteMapper) {
     this.voteService = voteService;
     this.voteMapper = voteMapper;
   }

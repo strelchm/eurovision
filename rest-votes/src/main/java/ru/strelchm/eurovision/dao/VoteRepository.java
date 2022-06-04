@@ -30,8 +30,8 @@ public interface VoteRepository extends JpaRepository<Vote, UUID>, JpaSpecificat
 
   Optional<Vote> findFirstByArtistInOrderByCreatedDesc(Collection<Artist> artists);
 
-  @Query("SELECT new ru.strelchm.eurovision.api.dto.VoteTotalStat(v.artist.name, COUNT(v)) FROM Vote v WHERE v.artist = ?1 GROUP BY v.artist.name")
-  VoteTotalStat getCountStat(Artist artist);
+  @Query(value = "SELECT COUNT(*) FROM vote v WHERE v.artist_id = ?1", nativeQuery = true)
+  long getCountStat(UUID artistId);
 
   Optional<Vote> findByArtist_Name(String artistName);
 }

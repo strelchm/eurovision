@@ -62,6 +62,10 @@ public class VoteService implements InitializingBean {
       dateTo = voteRepository.findFirstByArtistInOrderByCreatedDesc(artists).map(BaseEntity::getCreated).orElse(null); // todo artists may be null!
     }
 
+    if (dateTo == null || dateFrom == null) {
+      return new ArrayList<>();
+    }
+
     long intervalPeriod = (dateTo.getTime() - dateFrom.getTime()) / intervalCount; // todo dateTo or dateFrom may be null!
 
     long from = dateFrom.getTime();
@@ -107,7 +111,7 @@ public class VoteService implements InitializingBean {
     Vote vote = new Vote();
     vote.setArtist(artist);
     voteRepository.save(vote);
-    return voteRepository.getCountStat(artist);
+    return new VoteTotalStat(artistName, voteRepository.getCountStat(artist.getId()));
   }
 
   private Artist getArtistByName(String artistName) {

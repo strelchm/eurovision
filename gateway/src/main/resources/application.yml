@@ -1,0 +1,22 @@
+server:
+  port: 8090
+## cloud
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+          url-expression: "'lb:http://'+serviceId"
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8012/eureka}
+feign:
+  circuitbreaker:
+    enabled: true

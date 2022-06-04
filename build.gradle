@@ -11,8 +11,12 @@ configurations {
     }
 }
 
+ext {
+    set('springCloudVersion', "2021.0.3")
+}
+
 subprojects {
-	apply plugin: 'java'
+    apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
     repositories {
@@ -24,10 +28,17 @@ subprojects {
 }
 
 project(':rest-votes') {
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation group: 'org.antlr', name: 'antlr-complete', version: '3.5.3'
 
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
@@ -44,7 +55,7 @@ project(':rest-votes') {
         implementation 'org.mapstruct:mapstruct:1.5.0.Final'
         annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.0.Final'
 
-        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     }
 }
 
@@ -57,6 +68,42 @@ project(':stat-votes') {
         annotationProcessor 'org.projectlombok:lombok'
 
         implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
+    }
+}
+
+project(':discovery') {
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'    }
+}
+
+project(':gateway') {
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
+    dependencies {
+        implementation group: 'org.springdoc', name: 'springdoc-openapi-webflux-ui', version: '1.6.8'
+//        implementation group: 'org.springdoc', name: 'springdoc-openapi-native', version: '1.6.8'
+
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+        implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+        implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+        implementation 'com.playtika.reactivefeign:feign-reactor-webclient:3.0.3'
+        implementation 'com.playtika.reactivefeign:feign-reactor-cloud:3.0.3'
+        implementation 'com.playtika.reactivefeign:feign-reactor-spring-configuration:3.0.3'
+        implementation 'io.github.openfeign:feign-jackson:9.7.0'
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
     }
 }
 

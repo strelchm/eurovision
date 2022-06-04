@@ -1,2 +1,2 @@
 rootProject.name = 'eurovision'
-include "rest-votes", "stat-votes"
+include "rest-votes", "stat-votes", "gateway", "discovery"
