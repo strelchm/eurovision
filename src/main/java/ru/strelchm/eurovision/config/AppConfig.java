@@ -17,6 +17,9 @@ public class AppConfig implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(rateLimitInterceptor).addPathPatterns("/**");
+    registry.addInterceptor(rateLimitInterceptor)
+        .addPathPatterns("/**")
+        .excludePathPatterns("/swagger-ui/**", "/v3/**",
+        "configuration/ui", "swagger-resources/**", "configuration/security", "swagger-ui.html", "webjars/**");
   }
 }

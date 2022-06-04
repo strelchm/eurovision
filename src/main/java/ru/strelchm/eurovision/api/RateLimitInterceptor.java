@@ -11,6 +11,8 @@ import ru.strelchm.eurovision.service.RateLimiterService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static ru.strelchm.eurovision.service.RateLimiterService.*;
+
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
   private final RateLimiterService rateLimiterService;
@@ -22,7 +24,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    String apiKey = request.getHeader("api-key");
+    String apiKey = request.getHeader(API_KEY_PARAMETER);
     if (apiKey == null || apiKey.isEmpty()) {
       response.sendError(HttpStatus.BAD_REQUEST.value(), "Missing Header: api-key");
       return false;
@@ -30,11 +32,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     Bucket bucket = rateLimiterService.resolveBucket(apiKey);
     ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
     if (probe.isConsumed()) {
-      response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
+      response.addHeader(X_RATE_LIMIT_REMAINING_PARAMETER, String.valueOf(probe.getRemainingTokens()));
       return true;
     } else {
       long waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
-      response.addHeader("Rate-Limit-Retry-After-Seconds", String.valueOf(waitForRefill));
+      response.addHeader(RATE_LIMIT_RETRY_AFTER_SECONDS_PARAMETER, String.valueOf(waitForRefill));
       response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(),
           "You have exhausted your API Request Quota");
       return false;

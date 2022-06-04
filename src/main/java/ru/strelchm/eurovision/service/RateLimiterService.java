@@ -13,6 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RateLimiterService {
+  public static final String API_KEY_PARAMETER = "api-key";
+  public static final String X_RATE_LIMIT_REMAINING_PARAMETER = "X-Rate-Limit-Remaining";
+  public static final String RATE_LIMIT_RETRY_AFTER_SECONDS_PARAMETER = "Rate-Limit-Retry-After-Seconds";
+
   private final Map<String, Bucket> bucketCache = new ConcurrentHashMap<>();
 
   @Value("${rate-limits.max-request-per-period}")
