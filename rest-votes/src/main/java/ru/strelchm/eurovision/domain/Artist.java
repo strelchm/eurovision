@@ -11,6 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Artist extends BaseEntity<UUID> {
+public class Artist extends BaseEntity<Long> {
   private String name;
 }

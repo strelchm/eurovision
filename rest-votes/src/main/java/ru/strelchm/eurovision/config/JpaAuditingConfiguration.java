@@ -12,6 +12,6 @@ import java.util.Optional;
 public class JpaAuditingConfiguration {
     @Bean
     public AuditorAware<String> auditorProvider() {
-        return () -> Optional.of("chat-user"); // todo - на будещее: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#auditing.interfaces
+        return () -> Optional.of("vote-user"); // todo - на будещее: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#auditing.interfaces
     }
 }

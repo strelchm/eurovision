@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -28,11 +29,11 @@ public class MetricStatProvider {
     int totalCount = statNodes.size();
     long totalDuration = statNodes.stream().mapToLong(v -> v.duration).sum();
     System.out.println("Summary:");
-    System.out.printf("Total:%s secs%n", totalDuration / 1000);
-    System.out.printf("Slowest:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).max().getAsLong() / 1000);
-    System.out.printf("Fastest:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).min().getAsLong() / 1000);
-    System.out.printf("Average:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).average().getAsDouble() / 1000);
-    System.out.printf("Requests/sec:%s%n", totalCount * 1000 / totalDuration);
+    System.out.printf("Total: %s secs%n", totalDuration / 1000);
+    System.out.printf("Slowest: %s secs%n", statNodes.stream().mapToLong(v -> v.duration).max().getAsLong() / 1000);
+    System.out.printf("Fastest: %s secs%n", statNodes.stream().mapToLong(v -> v.duration).min().getAsLong() / 1000);
+    System.out.printf("Average: %s secs%n", statNodes.stream().mapToLong(v -> v.duration).average().getAsDouble() / 1000);
+    System.out.printf("Requests/sec: %s%n%n", totalCount * 1000.0 / totalDuration);
 
     System.out.println("Latency distribution:");
 
@@ -44,12 +45,17 @@ public class MetricStatProvider {
     System.out.printf("75%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(75, totalCount)));
     System.out.printf("90%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(90, totalCount)));
     System.out.printf("95%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(95, totalCount)));
-    System.out.printf("99%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(99, totalCount)));
+    System.out.printf("99%% in %d  secs%n%n", sortedDurations.get(getIndexFromPercentile(99, totalCount)));
 
     System.out.println("Status code distribution:");
     statNodes.stream()
+        .filter(v -> v.responseStatus != null)
         .collect(Collectors.groupingBy(v -> v.responseStatus.value(), Collectors.counting()))
         .forEach((key, value) -> System.out.printf("[%s] %d responses%n", key, value));
+    long connectionErrorResponseCount = statNodes.stream().map(v -> v.responseStatus).filter(Objects::isNull).count();
+    if (connectionErrorResponseCount > 0) {
+      System.out.printf("[Connection error] %d responses%n", connectionErrorResponseCount);
+    }
   }
 
   private int getIndexFromPercentile(int percentile, int arrSize) {

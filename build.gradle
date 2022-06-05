@@ -93,7 +93,7 @@ project(':gateway') {
         implementation 'com.playtika.reactivefeign:feign-reactor-cloud:3.0.3'
         implementation 'com.playtika.reactivefeign:feign-reactor-spring-configuration:3.0.3'
         implementation 'io.github.openfeign:feign-jackson:9.7.0'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
+//        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
     }
 }
 

@@ -81,8 +81,6 @@ public class VoteService implements InitializingBean {
     long from = dateFrom.getTime();
     long to = from + intervalPeriod;
     for (int i = 0; i < intervalCount; i++) {
-      System.out.println("from = " + from + " to = " + to); // just 4 test
-      System.out.println("diff = " + (to - from)); // just 4 test
       result.add(
           new VoteIntervalStatDto(
               new Date(from),
@@ -118,7 +116,7 @@ public class VoteService implements InitializingBean {
     Vote vote = new Vote();
     vote.setArtist(artist);
     voteRepository.save(vote);
-    return new VoteTotalStat(artistName, voteRepository.getCountStat(artist.getId()));
+    return new VoteTotalStat(artistName, voteRepository.countByArtist(artist));
   }
 
   private Artist getArtistByName(String artistName) {

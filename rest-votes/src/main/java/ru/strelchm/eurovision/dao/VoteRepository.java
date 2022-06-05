@@ -4,12 +4,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-import ru.strelchm.eurovision.api.dto.VoteIntervalStatDto;
+import ru.strelchm.eurovision.api.dto.VoteTotalStat;
 import ru.strelchm.eurovision.domain.Artist;
 import ru.strelchm.eurovision.domain.Vote;
-import ru.strelchm.eurovision.api.dto.VoteTotalStat;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,8 +32,7 @@ public interface VoteRepository extends JpaRepository<Vote, UUID>, JpaSpecificat
 
   Optional<Vote> findFirstByOrderByCreatedDesc();
 
-  @Query(value = "SELECT COUNT(*) FROM vote v WHERE v.artist_id = ?1", nativeQuery = true)
-  long getCountStat(UUID artistId);
+  long countByArtist(Artist artist);
 
   Optional<Vote> findByArtist_Name(String artistName);
 }

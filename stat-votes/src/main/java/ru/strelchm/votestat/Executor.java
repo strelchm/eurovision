@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -22,6 +24,7 @@ import java.util.logging.Logger;
 
 @Component
 public class Executor {
+  public static final int DEFAULT_TIMEOUT_SEC = 2;
   private ExecutorService service;
   private CountDownLatch latch;
 
@@ -63,24 +66,20 @@ public class Executor {
 
         long startNano = System.nanoTime();
         HttpRequest request;
+        HttpStatus status;
         try {
           request = HttpRequest.newBuilder()
               .header("Content-Type", "application/json")
               .POST(HttpRequest.BodyPublishers.ofString(requestBody))
               .uri(new URI(url))
+              .timeout(Duration.of(DEFAULT_TIMEOUT_SEC, ChronoUnit.SECONDS))
               .setHeader("api-key", Double.toString(Math.random()))
               .build();
-        } catch (URISyntaxException e) {
-          throw new UnsupportedOperationException(e.getMessage());
-        }
-
-        HttpStatus status;
-        try {
           HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
           status = HttpStatus.valueOf(response.statusCode());
-        } catch (IOException | InterruptedException e) {
-          e.printStackTrace();
-          throw new UnsupportedOperationException(e.getMessage());
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+          LOG.severe("Connection error during request: " + e.getMessage());
+          status = null;
         }
         metricStatProvider.putStat(String.format("%s %s", endpoint, HttpMethod.POST),
             (System.nanoTime() - startNano) / 1000000, status);
