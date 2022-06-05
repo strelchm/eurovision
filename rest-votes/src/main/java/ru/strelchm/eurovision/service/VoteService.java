@@ -56,10 +56,16 @@ public class VoteService implements InitializingBean {
     List<Artist> artists = artistNames == null ? null :
         Arrays.stream(artistNames.split(",")).map(this::getArtistByName).collect(Collectors.toList());
     if (dateFrom == null) {
-      dateFrom = voteRepository.findFirstByArtistIn(artists).map(BaseEntity::getCreated).orElse(null); // todo artists may be null!
+      dateFrom = (artists == null ?
+          voteRepository.findFirstBy() :
+          voteRepository.findFirstByArtistIn(artists)
+      ).map(BaseEntity::getCreated).orElse(null);
     }
     if (dateTo == null) {
-      dateTo = voteRepository.findFirstByArtistInOrderByCreatedDesc(artists).map(BaseEntity::getCreated).orElse(null); // todo artists may be null!
+      dateTo = (artists == null ?
+          voteRepository.findFirstByOrderByCreatedDesc() :
+          voteRepository.findFirstByArtistInOrderByCreatedDesc(artists)
+      ).map(BaseEntity::getCreated).orElse(null);
     }
 
     if (dateTo == null || dateFrom == null) {

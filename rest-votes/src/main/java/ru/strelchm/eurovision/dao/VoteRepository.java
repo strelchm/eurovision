@@ -28,7 +28,11 @@ public interface VoteRepository extends JpaRepository<Vote, UUID>, JpaSpecificat
 
   Optional<Vote> findFirstByArtistIn(Collection<Artist> artists);
 
+  Optional<Vote> findFirstBy();
+
   Optional<Vote> findFirstByArtistInOrderByCreatedDesc(Collection<Artist> artists);
+
+  Optional<Vote> findFirstByOrderByCreatedDesc();
 
   @Query(value = "SELECT COUNT(*) FROM vote v WHERE v.artist_id = ?1", nativeQuery = true)
   long getCountStat(UUID artistId);

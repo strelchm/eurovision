@@ -45,7 +45,7 @@ public class Executor {
     this.latch = new CountDownLatch(totalNumberOfTasks);
   }
 
-  public void executeRequest(String endpoint, int port, int requestNumber) throws InterruptedException { // todo http method param add
+  public void executeRequest(String endpoint, int port, int requestNumber) throws InterruptedException { // todo {strelchm} http method param add
     String url = String.format("http://localhost:%d%s", port, endpoint);
     for (int i = 0; i < requestNumber; i++) {
       service.submit(() -> {
