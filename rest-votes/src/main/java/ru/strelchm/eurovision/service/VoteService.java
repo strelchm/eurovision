@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,9 @@ public class VoteService implements InitializingBean {
   private final VoteRepository voteRepository;
   private final ArtistRepository artistRepository;
 
+  @Value("${config.artists-file-path}")
+  private String artistConfigFilePath;
+
   @Autowired
   public VoteService(VoteRepository voteRepository, ArtistRepository artistRepository) {
     this.voteRepository = voteRepository;
@@ -41,7 +45,7 @@ public class VoteService implements InitializingBean {
   public void afterPropertiesSet() throws Exception {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     mapper.findAndRegisterModules();
-    ArtistsFileDto artistNamesDto = mapper.readValue(new File("rest-votes/src/main/resources/artists.yml"), ArtistsFileDto.class);
+    ArtistsFileDto artistNamesDto = mapper.readValue(new File(artistConfigFilePath), ArtistsFileDto.class);
     artistRepository.saveAll(artistNamesDto.getArtistNames().stream().map(Artist::new).collect(Collectors.toList()));
   }
 
@@ -83,7 +87,7 @@ public class VoteService implements InitializingBean {
           new VoteIntervalStatDto(
               new Date(from),
               new Date(to),
-              voteRepository.count(getVoteSpecification(intervalCount, from, to, artists))
+              voteRepository.count(getVoteSpecification(from, to, artists))
           )
       );
       from = to + 1;
@@ -92,12 +96,9 @@ public class VoteService implements InitializingBean {
     return result;
   }
 
-  public Specification<Vote> getVoteSpecification(Long intervalCount, Long dateFrom, Long dateTo, List<Artist> artists) {
+  public Specification<Vote> getVoteSpecification(Long dateFrom, Long dateTo, List<Artist> artists) {
     return (root, query, cb) -> {
       List<Predicate> predicates = new ArrayList<>();
-//      if (device != null) {
-//        predicates.add(cb.equal(root.get("device"), device));
-//      }
       if (dateFrom != null) {
         predicates.add(cb.greaterThanOrEqualTo(root.get("created"), new Date(dateFrom)));
       }

@@ -19,21 +19,22 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    repositories {
-        mavenCentral()
-    }
     group = 'ru.strelchm'
     version = '0.0.1-SNAPSHOT'
     sourceCompatibility = '11'
-}
 
-project(':rest-votes') {
     dependencyManagement {
         imports {
             mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
     }
 
+    repositories {
+        mavenCentral()
+    }
+}
+
+project(':rest-votes') {
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -72,23 +73,12 @@ project(':stat-votes') {
 }
 
 project(':discovery') {
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        }
-    }
-
     dependencies {
-        implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'    }
+        implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+    }
 }
 
 project(':gateway') {
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        }
-    }
-
     dependencies {
         implementation group: 'org.springdoc', name: 'springdoc-openapi-webflux-ui', version: '1.6.8'
 //        implementation group: 'org.springdoc', name: 'springdoc-openapi-native', version: '1.6.8'
