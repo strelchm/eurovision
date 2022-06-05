@@ -38,7 +38,7 @@ public class VoteStatApplication {
 
     ApplicationContext context = new AnnotationConfigApplicationContext("ru.strelchm.votestat");
     context.getBean(Executor.class).initializeExecutor(requestNumber);
-    context.getBean(Executor.class).foo(ADD_VOTE_ENDPOINT, port, requestNumber);
+    context.getBean(Executor.class).executeRequest(ADD_VOTE_ENDPOINT, port, requestNumber);
     System.out.printf("Runs %d vote requests with %d concurrent requests at the same time%n", requestNumber, concurrency);
     context.getBean(MetricStatProvider.class).printStatistics(String.format("%s %s", ADD_VOTE_ENDPOINT, ADD_VOTE_ENDPOINT_METHOD_TYPE));
     System.exit(0);

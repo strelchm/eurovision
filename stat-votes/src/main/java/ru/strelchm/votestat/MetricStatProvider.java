@@ -24,38 +24,36 @@ public class MetricStatProvider {
   }
 
   public void printStatistics(String addVoteEndpointStatId) {
-    long totalCount = methodStatMap.get(addVoteEndpointStatId).size();
-    long totalDuration = methodStatMap.get(addVoteEndpointStatId).stream().mapToLong(v -> v.duration).sum();
+    List<StatNode> statNodes = methodStatMap.get(addVoteEndpointStatId);
+    int totalCount = statNodes.size();
+    long totalDuration = statNodes.stream().mapToLong(v -> v.duration).sum();
     System.out.println("Summary:");
     System.out.printf("Total:%s secs%n", totalDuration / 1000);
-    System.out.printf("Slowest:%s secs%n", methodStatMap.get(addVoteEndpointStatId).stream().mapToLong(v -> v.duration).max().getAsLong() / 1000);
-    System.out.printf("Fastest:%s secs%n", methodStatMap.get(addVoteEndpointStatId).stream().mapToLong(v -> v.duration).min().getAsLong() / 1000);
-    System.out.printf("Average:%s secs%n", methodStatMap.get(addVoteEndpointStatId).stream().mapToLong(v -> v.duration).average().getAsDouble() / 1000);
+    System.out.printf("Slowest:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).max().getAsLong() / 1000);
+    System.out.printf("Fastest:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).min().getAsLong() / 1000);
+    System.out.printf("Average:%s secs%n", statNodes.stream().mapToLong(v -> v.duration).average().getAsDouble() / 1000);
     System.out.printf("Requests/sec:%s%n", totalCount * 1000 / totalDuration);
 
     System.out.println("Latency distribution:");
 
-//    10% in 1.0042 secs
-//
-//    25% in 1.0045 secs
-//
-//    50% in 1.0052 secs
-//
-//    75% in 1.0065 secs
-//
-//    90% in 1.0122 secs
-//
-//    95% in 1.0138 secs
-//
-//    99% in 1.0146 secs
+    List<Long> sortedDurations = statNodes.stream().map(v -> v.duration).sorted().collect(Collectors.toList());
+
+    System.out.printf("10%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(10, totalCount)));
+    System.out.printf("25%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(25, totalCount)));
+    System.out.printf("50%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(50, totalCount)));
+    System.out.printf("75%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(75, totalCount)));
+    System.out.printf("90%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(90, totalCount)));
+    System.out.printf("95%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(95, totalCount)));
+    System.out.printf("99%% in %d  secs%n", sortedDurations.get(getIndexFromPercentile(99, totalCount)));
 
     System.out.println("Status code distribution:");
-    methodStatMap.get(addVoteEndpointStatId).stream()
+    statNodes.stream()
         .collect(Collectors.groupingBy(v -> v.responseStatus.value(), Collectors.counting()))
-        .entrySet().stream()
-        .forEach(stat -> System.out.printf("[%s] %d responses%n", stat.getKey(), stat.getValue()));
+        .forEach((key, value) -> System.out.printf("[%s] %d responses%n", key, value));
+  }
 
-//    насчет задания за 40 баллов по бэкэнду, я правильно понимаю, что нужно использовать nearest-rank, который n = ceiling((P / 100) x N) (где n это индекс, P - процентиль и N - размер)?
+  private int getIndexFromPercentile(int percentile, int arrSize) {
+    return Math.round(percentile / 100.0f * arrSize);
   }
 
   @Data

@@ -6,22 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Component
@@ -31,7 +27,8 @@ public class Executor {
 
   private static final Logger LOG = Logger.getLogger(Executor.class.getName());
 
-  private final RestTemplate restTemplate;
+  private static final String[] ALLOWED_ARTIST_NAMES = {"mc Poopkin", "Dr Dre", "Rihanna", "Eminem"};
+
   private final MetricStatProvider metricStatProvider;
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final HttpClient httpClient = HttpClient.newBuilder()
@@ -41,7 +38,6 @@ public class Executor {
   @Autowired
   public Executor(MetricStatProvider metricStatProvider) {
     this.metricStatProvider = metricStatProvider;
-    restTemplate = new CustomRestTemplate();
   }
 
   public void initializeExecutor(int totalNumberOfTasks) {
@@ -49,14 +45,13 @@ public class Executor {
     this.latch = new CountDownLatch(totalNumberOfTasks);
   }
 
-  public void foo(String endpoint, int port, int requestNumber) throws InterruptedException { // todo http method param add
+  public void executeRequest(String endpoint, int port, int requestNumber) throws InterruptedException { // todo http method param add
     String url = String.format("http://localhost:%d%s", port, endpoint);
-    System.out.println("request number = " + requestNumber);
     for (int i = 0; i < requestNumber; i++) {
       service.submit(() -> {
         Map<Object, Object> data = new HashMap<>();
-        data.put("phone", "9000000000");
-        data.put("artist", "Eminem");
+        data.put("phone", getRandomTelephone());
+        data.put("artist", getRandomArtistName());
         String requestBody = null;
         try {
           requestBody = objectMapper
@@ -67,7 +62,7 @@ public class Executor {
         }
 
         long startNano = System.nanoTime();
-        HttpRequest request = null;
+        HttpRequest request;
         try {
           request = HttpRequest.newBuilder()
               .header("Content-Type", "application/json")
@@ -87,20 +82,6 @@ public class Executor {
           e.printStackTrace();
           throw new UnsupportedOperationException(e.getMessage());
         }
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set();
-//        HttpEntity<AddVoteDto> request = new HttpEntity<>(new AddVoteDto(), headers);
-//
-//        try {
-//          ResponseEntity<String> response =
-//              restTemplate.postForEntity(url, request, String.class);
-//          status = response.getStatusCode();
-//        } catch (RestClientResponseException ex) {
-//          LOG.warning(ex.getMessage());
-//          status = HttpStatus.valueOf(ex.getRawStatusCode());
-//        }
         metricStatProvider.putStat(String.format("%s %s", endpoint, HttpMethod.POST),
             (System.nanoTime() - startNano) / 1000000, status);
         latch.countDown();
@@ -109,16 +90,15 @@ public class Executor {
     latch.await();
   }
 
-  private HttpRequest.BodyPublisher buildFormDataFromMap(Map<Object, Object> data) {
-    var builder = new StringBuilder();
-    for (Map.Entry<Object, Object> entry : data.entrySet()) {
-      if (builder.length() > 0) {
-        builder.append("&");
-      }
-      builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));
-      builder.append("=");
-      builder.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
+  private String getRandomTelephone() {
+    StringBuilder sb = new StringBuilder("9");
+    for (int i = 0; i < 9; i++) {
+      sb.append((int) (Math.random() * 9));
     }
-    return HttpRequest.BodyPublishers.ofString(builder.toString());
+    return sb.toString();
+  }
+
+  private String getRandomArtistName() {
+    return ALLOWED_ARTIST_NAMES[(int) (Math.random() * ALLOWED_ARTIST_NAMES.length)];
   }
 }
